@@ -41,7 +41,6 @@
     }
    <!-- auth.html -->
 <script>
-function login() {
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
   const users = JSON.parse(localStorage.getItem('vertexUsers') || '{}');
@@ -53,87 +52,6 @@ function login() {
     document.getElementById('authMsg').textContent = "Invalid username or password.";
   }
 }
-
-
-      if (users[username] && users[username].password === password) {
-        localStorage.setItem('vertexCurrentUser', username);
-        showNotesApp();
-      } else {
-        document.getElementById('authMsg').textContent = "Invalid username or password.";
-      }
-    }
-    function register() {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      if (!username || !password) {
-        document.getElementById('authMsg').textContent = "Please enter a username and password.";
-        return;
-      }
-      const users = getUsers();
-      if (users[username]) {
-        document.getElementById('authMsg').textContent = "Username already exists.";
-        return;
-      }
-      users[username] = { password: password, notes: [] };
-      setUsers(users);
-      document.getElementById('authMsg').textContent = "Registration successful! Please log in.";
-    }
-    function logout() {
-      localStorage.removeItem('vertexCurrentUser');
-      showAuth();
-    }
-    // --- Notes Functions ---
-    function getCurrentUser() {
-      return localStorage.getItem('vertexCurrentUser');
-    }
-    function getUserData(username) {
-      const users = getUsers();
-      return users[username];
-    }
-    function saveNote() {
-      const username = getCurrentUser();
-      const users = getUsers();
-      const title = document.getElementById('noteTitle').value.trim();
-      const content = document.getElementById('noteContent').value;
-      if (!title && !content) return;
-      users[username].notes.push({ title, content });
-      setUsers(users);
-      document.getElementById('noteTitle').value = '';
-      document.getElementById('noteContent').value = '';
-      renderNotes();
-    }
-    function renderNotes() {
-      const username = getCurrentUser();
-      const userData = getUserData(username);
-      const notesList = document.getElementById('notesList');
-      notesList.innerHTML = '';
-      (userData.notes || []).forEach(note => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span class="note-title">${note.title}</span>: ${note.content}`;
-        notesList.appendChild(li);
-      });
-    }
-    // --- UI Functions ---
-    function showNotesApp() {
-      const username = getCurrentUser();
-      if (!username) return showAuth();
-      document.getElementById('authSection').style.display = 'none';
-      document.getElementById('notesApp').style.display = 'block';
-      document.getElementById('userDisplay').textContent = username;
-      renderNotes();
-    }
-    function showAuth() {
-      document.getElementById('authSection').style.display = 'block';
-      document.getElementById('notesApp').style.display = 'none';
-      document.getElementById('authMsg').textContent = '';
-      document.getElementById('username').value = '';
-      document.getElementById('password').value = '';
-    }
-    // --- On Load ---
-    window.onload = function() {
-      if (getCurrentUser()) showNotesApp();
-      else showAuth();
-    }
   </script>
 </body>
 </html>
