@@ -104,6 +104,13 @@
   </div>
   <script>
     // Simple in-memory notes array
+    <!-- notes.html -->
+window.onload = function() {
+  if (!localStorage.getItem('vertexCurrentUser')) {
+    // Not logged in, redirect to auth.html
+    window.location.href = 'auth.html';
+  }
+  // ...rest of your notes app code...
     let notes = [
       { title: "Welcome to Vertex Notes!", content: "Start taking notes. Click '+ New Note' to add more." }
     ];
@@ -146,6 +153,7 @@
       renderNotesList();
       selectNote(0);
     };
+  };
   </script>
 </body>
 </html>
