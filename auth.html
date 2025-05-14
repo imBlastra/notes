@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vertex Notes - Local Auth Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f9fb; margin: 0; }
+    .auth, .notes-app { max-width: 400px; margin: 40px auto; padding: 2rem; border-radius: 8px; background: #fff; box-shadow: 0 2px 10px #0001; }
+    .notes-app { display: none; }
+    input, textarea, button { width: 100%; margin: 0.5rem 0; padding: 0.5rem; border-radius: 5px; border: 1px solid #ccc; }
+    .note-title { font-weight: bold; }
+    .logout-btn { background: #eebbc3; color: #232946; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="auth" id="authSection">
+    <h2>Vertex Notes Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <button onclick="register()">Register</button>
+    <div id="authMsg" style="color: red;"></div>
+  </div>
+  <div class="notes-app" id="notesApp">
+    <button class="logout-btn" onclick="logout()">Logout</button>
+    <h2>Welcome, <span id="userDisplay"></span>!</h2>
+    <input type="text" id="noteTitle" placeholder="Note Title">
+    <textarea id="noteContent" placeholder="Your note..."></textarea>
+    <button onclick="saveNote()">Save Note</button>
+    <h3>Your Notes</h3>
+    <ul id="notesList"></ul>
+  </div>
+  <script>
+    // --- Local Auth Functions ---
+    function getUsers() {
+      return JSON.parse(localStorage.getItem('vertexUsers') || '{}');
+    }
+    function setUsers(users) {
+      localStorage.setItem('vertexUsers', JSON.stringify(users));
+    }
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const users = getUsers();
+      if (users[username] && users[username].password === password) {
+        localStorage.setItem('vertexCurrentUser', username);
+        showNotesApp();
+      } else {
+        document.getElementById('authMsg').textContent = "Invalid username or password.";
+      }
+    }
+    function register() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      if (!username || !password) {
+        document.getElementById('authMsg').textContent = "Please enter a username and password.";
+        return;
+      }
+      const users = getUsers();
+      if (users[username]) {
+        document.getElementById('authMsg').textContent = "Username already exists.";
+        return;
+      }
+      users[username] = { password: password, notes: [] };
+      setUsers(users);
+      document.getElementById('authMsg').textContent = "Registration successful! Please log in.";
+    }
+    function logout() {
+      localStorage.removeItem('vertexCurrentUser');
+      showAuth();
+    }
+    // --- Notes Functions ---
+    function getCurrentUser() {
+      return localStorage.getItem('vertexCurrentUser');
+    }
+    function getUserData(username) {
+      const users = getUsers();
+      return users[username];
+    }
+    function saveNote() {
+      const username = getCurrentUser();
+      const users = getUsers();
+      const title = document.getElementById('noteTitle').value.trim();
+      const content = document.getElementById('noteContent').value;
+      if (!title && !content) return;
+      users[username].notes.push({ title, content });
+      setUsers(users);
+      document.getElementById('noteTitle').value = '';
+      document.getElementById('noteContent').value = '';
+      renderNotes();
+    }
+    function renderNotes() {
+      const username = getCurrentUser();
+      const userData = getUserData(username);
+      const notesList = document.getElementById('notesList');
+      notesList.innerHTML = '';
+      (userData.notes || []).forEach(note => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="note-title">${note.title}</span>: ${note.content}`;
+        notesList.appendChild(li);
+      });
+    }
+    // --- UI Functions ---
+    function showNotesApp() {
+      const username = getCurrentUser();
+      if (!username) return showAuth();
+      document.getElementById('authSection').style.display = 'none';
+      document.getElementById('notesApp').style.display = 'block';
+      document.getElementById('userDisplay').textContent = username;
+      renderNotes();
+    }
+    function showAuth() {
+      document.getElementById('authSection').style.display = 'block';
+      document.getElementById('notesApp').style.display = 'none';
+      document.getElementById('authMsg').textContent = '';
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+    }
+    // --- On Load ---
+    window.onload = function() {
+      if (getCurrentUser()) showNotesApp();
+      else showAuth();
+    }
+  </script>
+</body>
+</html>
