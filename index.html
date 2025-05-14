@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vertex Notes - Local Auth Demo</title>
+  <title>Vertex Auth - Notes</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body { font-family: Arial, sans-serif; background: #f7f9fb; margin: 0; }
@@ -24,11 +24,12 @@
   </div>
   <div class="notes-app" id="notesApp">
     <button class="logout-btn" onclick="logout()">Logout</button>
-    <h2>Welcome, <span id="userDisplay"></span>!</h2>
+    <h2>Vertex Notes</h2>
+    <title>Vertex Notes</title>
     <input type="text" id="noteTitle" placeholder="Note Title">
-    <textarea id="noteContent" placeholder="Your note..."></textarea>
+    <textarea id="noteContent" placeholder="Notes"></textarea>
     <button onclick="saveNote()">Save Note</button>
-    <h3>Your Notes</h3>
+    <h3>Your Notes:</h3>
     <ul id="notesList"></ul>
   </div>
   <script>
