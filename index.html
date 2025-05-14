@@ -90,17 +90,6 @@
       document.getElementById('noteContent').value = '';
       renderNotes();
     }
-    function renderNotes() {
-      const username = getCurrentUser();
-      const userData = getUserData(username);
-      const notesList = document.getElementById('notesList');
-      notesList.innerHTML = '';
-      (userData.notes || []).forEach(note => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span class="note-title">${note.title}</span>: ${note.content}`;
-        notesList.appendChild(li);
-      });
-    }
     // --- UI Functions ---
     function showNotesApp() {
       const username = getCurrentUser();
