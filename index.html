@@ -36,96 +36,92 @@
     function getUsers() {
       return JSON.parse(localStorage.getItem('vertexUsers') || '{}');
     }
-
     function setUsers(users) {
       localStorage.setItem('vertexUsers', JSON.stringify(users));
     }
-
     function login() {
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
       const users = getUsers();
-
       if (users[username] && users[username].password === password) {
         localStorage.setItem('vertexCurrentUser', username);
-        showNotesApp(username);
+        showNotesApp();
       } else {
         document.getElementById('authMsg').textContent = "Invalid username or password.";
       }
     }
-
     function register() {
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
-
       if (!username || !password) {
-        document.getElementById('authMsg').textContent = "Username and password cannot be empty.";
+        document.getElementById('authMsg').textContent = "Please enter a username and password.";
         return;
       }
-
       const users = getUsers();
-
       if (users[username]) {
-        document.getElementById('authMsg').textContent = "Username is already taken.";
-      } else {
-        users[username] = { password };
-        setUsers(users);
-        document.getElementById('authMsg').textContent = "Registration successful! You can now log in.";
+        document.getElementById('authMsg').textContent = "Username already exists.";
+        return;
       }
+      users[username] = { password: password, notes: [] };
+      setUsers(users);
+      document.getElementById('authMsg').textContent = "Registration successful! Please log in.";
     }
-
     function logout() {
       localStorage.removeItem('vertexCurrentUser');
-      document.getElementById('notesApp').style.display = 'none';
-      document.getElementById('authSection').style.display = 'block';
+      showAuth();
     }
-
-    function saveNote() {
-      const currentUser = localStorage.getItem('vertexCurrentUser');
-      if (!currentUser) return;
-
-      const noteTitle = document.getElementById('noteTitle').value.trim();
-      const noteContent = document.getElementById('noteContent').value.trim();
+    // --- Notes Functions ---
+    function getCurrentUser() {
+      return localStorage.getItem('vertexCurrentUser');
+    }
+    function getUserData(username) {
       const users = getUsers();
-
-      if (!users[currentUser].notes) {
-        users[currentUser].notes = [];
-      }
-
-      users[currentUser].notes.push({ title: noteTitle, content: noteContent });
-      setUsers(users);
-      displayNotes(users[currentUser].notes);
+      return users[username];
     }
-
-    function displayNotes(notes) {
+    function saveNote() {
+      const username = getCurrentUser();
+      const users = getUsers();
+      const title = document.getElementById('noteTitle').value.trim();
+      const content = document.getElementById('noteContent').value;
+      if (!title && !content) return;
+      users[username].notes.push({ title, content });
+      setUsers(users);
+      document.getElementById('noteTitle').value = '';
+      document.getElementById('noteContent').value = '';
+      renderNotes();
+    }
+    function renderNotes() {
+      const username = getCurrentUser();
+      const userData = getUserData(username);
       const notesList = document.getElementById('notesList');
       notesList.innerHTML = '';
-
-      notes.forEach(note => {
+      (userData.notes || []).forEach(note => {
         const li = document.createElement('li');
-        li.innerHTML = `<span class="note-title">${note.title}:</span> ${note.content}`;
+        li.innerHTML = `<span class="note-title">${note.title}</span>: ${note.content}`;
         notesList.appendChild(li);
       });
     }
-
-    function showNotesApp(username) {
+    // --- UI Functions ---
+    function showNotesApp() {
+      const username = getCurrentUser();
+      if (!username) return showAuth();
       document.getElementById('authSection').style.display = 'none';
       document.getElementById('notesApp').style.display = 'block';
       document.getElementById('userDisplay').textContent = username;
-
-      const users = getUsers();
-      if (users[username].notes) {
-        displayNotes(users[username].notes);
-      }
+      renderNotes();
     }
-
-    // Auto-login if user is already logged in
-    document.addEventListener('DOMContentLoaded', () => {
-      const currentUser = localStorage.getItem('vertexCurrentUser');
-      if (currentUser) {
-        showNotesApp(currentUser);
-      }
-    });
+    function showAuth() {
+      document.getElementById('authSection').style.display = 'block';
+      document.getElementById('notesApp').style.display = 'none';
+      document.getElementById('authMsg').textContent = '';
+      document.getElementById('username').value = '';
+      document.getElementById('password').value = '';
+    }
+    // --- On Load ---
+    window.onload = function() {
+      if (getCurrentUser()) showNotesApp();
+      else showAuth();
+    }
   </script>
 </body>
 </html>
