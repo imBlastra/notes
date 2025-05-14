@@ -123,5 +123,30 @@
       else showAuth();
     }
   </script>
+  <script>
+  // --- Modified Notes Functions ---
+  function deleteNote(index) {
+    const username = getCurrentUser();
+    const users = getUsers();
+    users[username].notes.splice(index, 1); // Remove the note at the given index
+    setUsers(users);
+    renderNotes();
+  }
+
+  function renderNotes() {
+    const username = getCurrentUser();
+    const userData = getUserData(username);
+    const notesList = document.getElementById('notesList');
+    notesList.innerHTML = '';
+    (userData.notes || []).forEach((note, index) => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span class="note-title">${note.title}</span>: ${note.content}
+        <button onclick="deleteNote(${index})" style="margin-left: 10px; color: red;">Delete</button>
+      `;
+      notesList.appendChild(li);
+    });
+  }
+</script>
 </body>
 </html>
