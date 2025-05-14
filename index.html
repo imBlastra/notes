@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vertex Notes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f7f9fb;
+      color: #222;
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 250px;
+      background: #232946;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+    .sidebar h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      letter-spacing: 2px;
+    }
+    .notes-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .note-title {
+      padding: 0.5rem 0.75rem;
+      margin-bottom: 0.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .note-title.active, .note-title:hover {
+      background: #eebbc3;
+      color: #232946;
+    }
+    .add-btn {
+      background: #eebbc3;
+      color: #232946;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background 0.2s;
+    }
+    .add-btn:hover {
+      background: #ffd6e0;
+    }
+    .main {
+      flex: 1;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .main input {
+      font-size: 1.3rem;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .main textarea {
+      flex: 1;
+      font-size: 1rem;
+      padding: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: vertical;
+      min-height: 200px;
+      box-sizing: border-box;
+      background: #fff;
+    }
+    @media (max-width: 700px) {
+      .sidebar { width: 100px; padding: 0.5rem; }
+      .sidebar h1 { font-size: 1rem; }
+      .main { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h1>Vertex Notes</h1>
+    <div class="notes-list" id="notesList">
+      <!-- Note titles will be injected here -->
+    </div>
+    <button class="add-btn" onclick="addNote()">+ New Note</button>
+  </div>
+  <div class="main">
+    <input type="text" id="noteTitle" placeholder="Note Title" oninput="updateNote()">
+    <textarea id="noteContent" placeholder="Start writing your note..." oninput="updateNote()"></textarea>
+  </div>
+  <script>
+    // Simple in-memory notes array
+    let notes = [
+      { title: "Welcome to Vertex Notes!", content: "Start taking notes. Click '+ New Note' to add more." }
+    ];
+    let currentNote = 0;
+
+    function renderNotesList() {
+      const notesList = document.getElementById('notesList');
+      notesList.innerHTML = '';
+      notes.forEach((note, idx) => {
+        const div = document.createElement('div');
+        div.className = 'note-title' + (idx === currentNote ? ' active' : '');
+        div.textContent = note.title || 'Untitled Note';
+        div.onclick = () => selectNote(idx);
+        notesList.appendChild(div);
+      });
+    }
+
+    function selectNote(idx) {
+      currentNote = idx;
+      document.getElementById('noteTitle').value = notes[idx].title;
+      document.getElementById('noteContent').value = notes[idx].content;
+      renderNotesList();
+    }
+
+    function addNote() {
+      notes.unshift({ title: '', content: '' });
+      currentNote = 0;
+      renderNotesList();
+      selectNote(0);
+    }
+
+    function updateNote() {
+      notes[currentNote].title = document.getElementById('noteTitle').value;
+      notes[currentNote].content = document.getElementById('noteContent').value;
+      renderNotesList();
+    }
+
+    // Initialize
+    window.onload = () => {
+      renderNotesList();
+      selectNote(0);
+    };
+  </script>
+</body>
+</html>
