@@ -36,22 +36,96 @@
     function getUsers() {
       return JSON.parse(localStorage.getItem('vertexUsers') || '{}');
     }
+
     function setUsers(users) {
       localStorage.setItem('vertexUsers', JSON.stringify(users));
     }
-   <!-- auth.html -->
-<script>
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
-  const users = JSON.parse(localStorage.getItem('vertexUsers') || '{}');
-  if (users[username] && users[username].password === password) {
-    localStorage.setItem('vertexCurrentUser', username);
-    // Redirect to notes.html after successful login
-    window.location.href = 'notes.html';
-  } else {
-    document.getElementById('authMsg').textContent = "Invalid username or password.";
-  }
-}
+
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+      const users = getUsers();
+
+      if (users[username] && users[username].password === password) {
+        localStorage.setItem('vertexCurrentUser', username);
+        showNotesApp(username);
+      } else {
+        document.getElementById('authMsg').textContent = "Invalid username or password.";
+      }
+    }
+
+    function register() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!username || !password) {
+        document.getElementById('authMsg').textContent = "Username and password cannot be empty.";
+        return;
+      }
+
+      const users = getUsers();
+
+      if (users[username]) {
+        document.getElementById('authMsg').textContent = "Username is already taken.";
+      } else {
+        users[username] = { password };
+        setUsers(users);
+        document.getElementById('authMsg').textContent = "Registration successful! You can now log in.";
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('vertexCurrentUser');
+      document.getElementById('notesApp').style.display = 'none';
+      document.getElementById('authSection').style.display = 'block';
+    }
+
+    function saveNote() {
+      const currentUser = localStorage.getItem('vertexCurrentUser');
+      if (!currentUser) return;
+
+      const noteTitle = document.getElementById('noteTitle').value.trim();
+      const noteContent = document.getElementById('noteContent').value.trim();
+      const users = getUsers();
+
+      if (!users[currentUser].notes) {
+        users[currentUser].notes = [];
+      }
+
+      users[currentUser].notes.push({ title: noteTitle, content: noteContent });
+      setUsers(users);
+      displayNotes(users[currentUser].notes);
+    }
+
+    function displayNotes(notes) {
+      const notesList = document.getElementById('notesList');
+      notesList.innerHTML = '';
+
+      notes.forEach(note => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="note-title">${note.title}:</span> ${note.content}`;
+        notesList.appendChild(li);
+      });
+    }
+
+    function showNotesApp(username) {
+      document.getElementById('authSection').style.display = 'none';
+      document.getElementById('notesApp').style.display = 'block';
+      document.getElementById('userDisplay').textContent = username;
+
+      const users = getUsers();
+      if (users[username].notes) {
+        displayNotes(users[username].notes);
+      }
+    }
+
+    // Auto-login if user is already logged in
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentUser = localStorage.getItem('vertexCurrentUser');
+      if (currentUser) {
+        showNotesApp(currentUser);
+      }
+    });
   </script>
 </body>
 </html>
