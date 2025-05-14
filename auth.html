@@ -39,10 +39,22 @@
     function setUsers(users) {
       localStorage.setItem('vertexUsers', JSON.stringify(users));
     }
-    function login() {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      const users = getUsers();
+   <!-- auth.html -->
+<script>
+function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const users = JSON.parse(localStorage.getItem('vertexUsers') || '{}');
+  if (users[username] && users[username].password === password) {
+    localStorage.setItem('vertexCurrentUser', username);
+    // Redirect to notes.html after successful login
+    window.location.href = 'notes.html';
+  } else {
+    document.getElementById('authMsg').textContent = "Invalid username or password.";
+  }
+}
+</script>
+
       if (users[username] && users[username].password === password) {
         localStorage.setItem('vertexCurrentUser', username);
         showNotesApp();
